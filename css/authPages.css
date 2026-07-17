@@ -312,7 +312,15 @@ footer {
 @media (min-width: 480px) {
     @keyframes logoSlideIn {
         from {
+            top: 50%;
+            left: 50%;
             transform: translate(calc(50vw - 4rem), calc(50vh - 4.835rem)) scale(1.6);
+        }
+
+        to {
+            top: 2rem;
+            left: 1rem;
+            transform: translate(0, 0) scale(1);
         }
     }
 
@@ -336,6 +344,8 @@ footer {
         }
 
         to {
+            top: 2rem;
+            left: 1rem;
             transform: translate(0, 0) scale(0.75);
             background: url("../assets/icons/logo-blue.svg") center center no-repeat;
         }
@@ -413,6 +423,8 @@ footer {
         }
 
         to {
+            top: 2rem;
+            left: 1rem;
             transform: translate(0, 0) scale(1);
         }
     }
