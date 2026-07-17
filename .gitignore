@@ -24,6 +24,9 @@ yarn-error.log*
 .env
 .env.*
 
+# Firebase credentials (contains API keys - never commit)
+js/credentials.js
+
 # Build output (if any)
 dist/
 build/
