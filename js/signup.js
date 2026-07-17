@@ -59,50 +59,27 @@ export function showFormError(fieldId, message, isHtml = false) {
 }
 
 /**
- * Shows an error message for the privacy policy checkbox.
+ * Shows the privacy policy error next to the checkbox.
  * @returns {boolean} Always returns false to indicate validation failure
  */
-function updateSubmitButtonState() {
-    const submitButton = document.querySelector('form button[type="submit"]');
-    if (submitButton) {
-        submitButton.disabled = !areAllFieldsFilled();
-    }
+function showPolicyError() {
+    const checkbox = document.getElementById("confirm-check");
+    checkbox.parentElement.querySelector(".error-message")?.remove();
+    checkbox.style.borderColor = "#ff4646";
+    const errorMsg = document.createElement("span");
+    errorMsg.className = "error-message";
+    errorMsg.textContent = "Please accept the Privacy Policy";
+    checkbox.parentElement.appendChild(errorMsg);
+    return false;
 }
 
-
 /**
- * Validate signup form fields and show errors if invalid
- * @param username
- * @param email
- * @param password
- * @param confirmPassword
- * @param acceptedPolicy
- * @returns {boolean}
- */
-function validateSignupForm(username, email, password, confirmPassword, acceptedPolicy) {
-    clearFormErrors();
-
-    if (!validatePasswordField(password, confirmPassword)) return false;
-    if (!validateUsernameAndEmail(username, email)) return false;
-    if (!acceptedPolicy) {
-        const checkbox = document.getElementById("confirm-check");
-        checkbox.parentElement.querySelector(".error-message")?.remove();
-        checkbox.style.borderColor = "#ff4646";
-        const errorMsg = document.createElement("span");
-        errorMsg.className = "error-message";
-        errorMsg.textContent = "Please accept the Privacy Policy";
-        checkbox.parentElement.appendChild(errorMsg);
-
-        return false;
-    }
-
-/**
- * Validates the complete signup form fields and shows errors if invalid.
- * @param {string} username - The username value
- * @param {string} email - The email value
- * @param {string} password - The password value
- * @param {string} confirmPassword - The confirm password value
- * @param {boolean} acceptedPolicy - Whether the privacy policy was accepted
+ * Validate signup form fields and show errors if invalid.
+ * @param {string} username
+ * @param {string} email
+ * @param {string} password
+ * @param {string} confirmPassword
+ * @param {boolean} acceptedPolicy
  * @returns {boolean} True if the form is valid
  */
 function validateSignupForm(username, email, password, confirmPassword, acceptedPolicy) {
@@ -116,9 +93,8 @@ function validateSignupForm(username, email, password, confirmPassword, accepted
 }
 
 /**
- * Validate username and email fields and show errors if invalid
- * @param username
- * @param email
+ * Validate username field (first and last name required).
+ * @param {string} username
  * @returns {boolean}
  */
 function validateUsername(username) {
@@ -139,6 +115,12 @@ function validateUsername(username) {
     return true;
 }
 
+/**
+ * Validate email field.
+ * @param {string} email
+ * @returns {boolean}
+ */
+function validateEmail(email) {
     if (!email.trim()) {
         showFormError("email", "Email is required");
         return false;
@@ -151,61 +133,42 @@ function validateUsername(username) {
         showFormError("email", "Invalid email format");
         return false;
     }
-
-
-    return isValid;
+    return true;
 }
 
 /**
- * Validates password and confirm password fields.
+ * Validate username and email fields and show errors if invalid.
+ * @param {string} username
+ * @param {string} email
+ * @returns {boolean}
+ */
+function validateUsernameAndEmail(username, email) {
+    const isUsernameValid = validateUsername(username);
+    const isEmailValid = validateEmail(email);
+    return isUsernameValid && isEmailValid;
+}
+
+/**
+ * Validate password and confirm password fields and show errors if invalid.
  * Firebase requirements: lowercase, uppercase, digit, non-alphanumeric character.
- * @param {string} password - The password to validate
- * @param {string} confirmPassword - The confirmation password to validate
- * @returns {boolean} True if both passwords are valid
+ * @param {string} password
+ * @param {string} confirmPassword
+ * @returns {boolean}
  */
 function validatePasswordField(password, confirmPassword) {
     let isValid = true;
 
-    validateUserPassword(password);
-    confirmUserPassword(confirmPassword);
-
-    return isValid;
-}
-
-/**
- * Validates the user password against security requirements.
- * @param {string} password - The password to validate
- * @returns {boolean} True if password is valid, false otherwise
- */
-function validateUserPassword(password) {
-    let isValid = true;
     if (!password) {
         showFormError("signup-password", "Password is required");
         isValid = false;
     } else if (containsHtmlChars(password)) {
         showFormError("signup-password", HACK_ATTEMPT_MSG);
         isValid = false;
-    } else {
-        const errors = [];
-        if (password.length < 6) errors.push("min. 6");
-        if (!/[a-z]/.test(password)) errors.push("lowercase chars");
-        if (!/[A-Z]/.test(password)) errors.push("uppercase");
-        if (!/[0-9]/.test(password)) errors.push("number");
-        if (!/[^a-zA-Z0-9]/.test(password)) errors.push("special");
-
-        if (errors.length > 0) {
-            showFormError("signup-password", `Insecure Password - <a href="https://www.bsi.bund.de/EN/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Sichere-Passwoerter-erstellen/sichere-passwoerter-erstellen_node.html" target="_blank" rel="noopener">BSI</a>`, true);
-            isValid = false;
-        }
+    } else if (password.length < 6 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
+        showFormError("signup-password", `Insecure Password - <a href="https://www.bsi.bund.de/EN/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Sichere-Passwoerter-erstellen/sichere-passwoerter-erstellen_node.html" target="_blank" rel="noopener">BSI</a>`, true);
+        isValid = false;
     }
 
-/**
- * Validates the confirmation password field matches the original password.
- * @param {string} confirmPassword - The confirmation password to validate
- * @returns {boolean} True if confirmation password is valid and matches, false otherwise
- */
-function confirmUserPassword(confirmPassword) {
-    let isValid = true;
     if (!confirmPassword) {
         showFormError("confirm-password", "Please confirm your password");
         isValid = false;
@@ -216,6 +179,7 @@ function confirmUserPassword(confirmPassword) {
         showFormError("confirm-password", "Passwords do not match");
         isValid = false;
     }
+
     return isValid;
 }
 
@@ -249,7 +213,8 @@ export function initSignupPage(signupUserCallback, handleAuthErrorCallback) {
     if (!signupForm || !usernameInput) return;
     updateSubmitButtonState();
 
-    setupInputChangeListeners(signupForm);
+    const inputs = signupForm.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+    inputs.forEach(input => input.addEventListener("input", handleInputChange));
     setupCheckboxChangeListener();
 
     document.querySelectorAll(".password-icon-toggle").forEach(toggle => setupPasswordToggle(toggle));
@@ -260,11 +225,11 @@ export function initSignupPage(signupUserCallback, handleAuthErrorCallback) {
     });
 }
 
-function handleInputChange() {
-    clearFormErrors();
-    updateSubmitButtonState();
-}
-
+/**
+ * Attaches password visibility toggle behaviour to a toggle element.
+ * @param {HTMLElement} toggle - The password toggle element
+ * @returns {void}
+ */
 function setupPasswordToggle(toggle) {
     const targetId = toggle.dataset.target;
     const passwordInput = document.getElementById(targetId);
