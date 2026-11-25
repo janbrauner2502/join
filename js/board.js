@@ -58,7 +58,7 @@ function renderFilteredTasks(filteredTasks) {
         const containerRef = document.getElementById(category);
         containerRef.innerHTML = "";
 
-        if (categoryTasks.length === 0) return containerRef.innerText = getNoTaskTemplate(category);
+        if (categoryTasks.length === 0) return containerRef.innerHTML = getNoTaskTemplate(category);
 
         categoryTasks.forEach(task => getTaskCard(task, containerRef));
     });
@@ -75,7 +75,7 @@ function getTaskCard(task, containerRef) {
     const subtasksDone = task.subtasks_done || [];
     const totalSubtasks = subtasks.length + subtasksDone.length;
     const progressWidth = totalSubtasks > 0 ? (subtasksDone.length / totalSubtasks) * 100 : 0;
-    containerRef.innerText += getTemplateTaskCard(task, subtasksDone, totalSubtasks, progressWidth);
+    containerRef.innerHTML += getTemplateTaskCard(task, subtasksDone, totalSubtasks, progressWidth);
     initMarkedUsers(task);
     hideEmptySubtasks(task);
 }
